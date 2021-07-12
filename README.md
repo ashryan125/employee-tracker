@@ -1,7 +1,6 @@
 # employee-tracker
 ## Description
-An application that can be used to write, save, and delete notes using an express.js backend.
-
+An application that can be used to track and manage a company's employees
 
 ## Table of Contents
 
@@ -24,15 +23,15 @@ Clone the Github repo.
 ```https://github.com/ashryan125/employee-tracker.git```
 
 Once in the properly cloned folder, run ```npm install``` to install the following dependencies:
- * Express:  ```npm i express``` to use Express.js in your command line.
- * uniqid: ```npm i uniqid``` to use uniqid for unique id generation
+ * Inquirer:  ```npm i inquirer``` to use inquirer.js for question generation
+ * MySQL2: ```npm i mysql2``` to use mysql2 for database queries
+ * Console Table ```npm i console.table``` for an easy to read console log
+ * Alernatively, you can run all at once with ```npm install inquirer mysql2 console.table```
 
 
 ## Usuage
  #### **LOCAL USAGE:** 
- Enter ```npm start``` in your command line and press ```ENTER```. 
- After receiving the notification ```App listening on PORT 3001```, open your browser and use ```http://localhost:3001``` to access the Note Taker App. 
- 
+ Enter ```npm start``` in your command line and press ```ENTER```.  
  
 ## User Story
 ```
