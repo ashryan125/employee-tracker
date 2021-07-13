@@ -12,11 +12,10 @@ An application that can be used to track and manage a company's employees
 * [Video of App in Action](#video)
 
 ## Built With
-* HTML
-* CSS / Bootstrap
 * JavaScript
 * Node.js
-* Express.js
+* MySQL
+* Inquirer
 
 ## Installation
 Clone the Github repo.
@@ -63,4 +62,6 @@ THEN I am prompted to select an employee to update and their new role and this i
 ```
 
 ## Video
-![Employee Tracker App gif](#)
+![Employee Tracker App gif](./employee-tracker.gif)
+
+[Fullsize video can be found here!](https://drive.google.com/file/d/1Kcm2LN-Y8mCF_U_wja0VgpKswFiC5C-0/view)
