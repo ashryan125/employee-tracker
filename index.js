@@ -12,51 +12,104 @@ const db = mysql.createConnection(
         password: "password",
         database: "employees",
     },
-    console.log("Connected to the election database")
+    console.log("Connected to the employees database")
 );
+
+db.connect(function(err) {
+    if (err) throw err;
+    employeeApp();
+});
+
+let roleArr = [];
+let managerArr = [];
+let deptArr = [];
+
+// new addition set ups
+const getRole = () => {
+    const sql = `SELECT * FROM roles`;
+    db.query(sql, (err, res) => {
+        if (err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            roleArr.push(res[i].title);
+        }
+    })
+    return roleArr;
+};
+
+const getManager = () => {
+    const sql = `SELECT first_name, last_name FROM employees`;
+    db.query(sql, (err, res) => {
+        if (err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            managerArr.push(res[i].title);
+        }
+    })
+    return managerArr;
+};
+
+const getDepartment = () => {
+    const sql = `SELECT * FROM departments`;
+    db.query(sql, (err, res) => {
+        if (err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            deptArr.push(res[i].title);
+        }
+    })
+    return deptArr;
+};
 
 // Database Calls
 const viewAllEmployees = () => {
-    const sql = `SELECT employees.first_name AS First_Name, employees.last_name AS Last_Name, roles.title AS Title, roles.salary AS Salary, department.name AS Department, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employees INNER JOIN roles on roles.id = employees.rolesID INNER JOIN department on department.id = roles.departmentID LEFT JOIN employees e on employees.managerID = e.id;`;
-    db.query(sql, (err, rows) => {
+    const sql = `SELECT employees.first_name AS First_Name, employees.last_name AS Last_Name, 
+    roles.title AS Title, roles.salary AS Salary, departments.name AS Department, 
+    CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employees INNER JOIN roles on
+    roles.id = employees.role_id INNER JOIN departments on departments.id = roles.department_id
+    LEFT JOIN employees e on employees.manager_id = e.id`;
+    db.query(sql, (err, res) => {
         if (err) throw err;
-        console.table(rows);
+        console.table(res);
         employeeApp();
     });
 };
 
 const viewAllDepts = () => {
-    const sql = `SELECT department.id AS ID, department.name AS Department FROM department`;
-    db.query(sql, (err, rows) => {
+    const sql = `SELECT departments.id AS ID, departments.name AS Department FROM departments`;
+    db.query(sql, (err, res) => {
         if (err) throw err;
-        console.table(rows);
+        console.table(res);
         employeeApp();
     });
 };
 
 const viewAllRoles = () => {
     const sql = `SELECT roles.id AS Dept_ID, roles.title AS Title FROM roles`;
-    db.query(sql, (err, rows) => {
+    db.query(sql, (err, res) => {
         if (err) throw err;
-        console.table(rows);
+        console.table(res);
         employeeApp();
     });
 };
 
 const viewEmployeesByDept = () => {
-    const sql = `SELECT employees.first_name AS First_Name, employees.last_name AS Last_Name, department.name AS Department FROM employees JOIN roles ON employees.rolesID = roles.id JOIN department ON roles.departmentID = department.id ORDER BY department.id`;
-    db.query(sql, (err, rows) => {
+    const sql = `SELECT employees.first_name AS First_Name, employees.last_name AS Last_Name,
+    departments.name AS Department FROM employees JOIN roles ON employees.role_id = roles.id
+    JOIN departments ON roles.department_id = departments.id ORDER BY departments.id`;
+
+    db.query(sql, (err, res) => {
+        console.log('before err');
         if (err) throw err;
-        console.table(rows);
+        console.log(res);
+        console.table(res);
         employeeApp();
     });
 };
 
 const viewEmployeesByRole = () => {
-    const sql = `SELECT employees.first_name AS First_Name, employees.last_name AS Last_Name, roles.title AS Title FROM employees JOIN roles ON employees.rolesID = role.id ORDER BY roles.id`;
-    db.query(sql, (err, rows) => {
+    const sql = `SELECT employees.first_name AS First_Name, employees.last_name AS Last_Name,
+    roles.title AS Title FROM employees JOIN roles ON employees.role_id = roles.id ORDER BY roles.id`;
+    db.query(sql, (err, res) => {
         if (err) throw err;
-        console.table(rows);
+        console.table(res);
         employeeApp();
     });
 };
@@ -64,7 +117,7 @@ const viewEmployeesByRole = () => {
 
 async function addEmployee() {
     const manager = await getManager();
-    const roles = await getRoles();
+    const roles = await getRole();
     return inquirer.prompt([
         {
             type: "input",
@@ -117,9 +170,20 @@ async function addDepartment() {
         {
             type: "input",
             message: "Name of the department?",
-            name: "department",
-        },
-    ]);
+            name: "department"
+        }
+    ]).then(function(answers) {
+        db.query(`INSERT INTO DEPARTMENTS (name) VALUES (?)`,
+            {
+                name: "answers.name"
+            },
+            function(err, res) {
+                if (err) throw err;
+                console.table(res)
+                employeeApp();
+            }
+        )
+    }) 
 };
 
 async function addRole() {
@@ -214,7 +278,7 @@ async function employeeApp() {
                     break;
 
                 // DELETE EMPLOYEE
-                case "Remove Employee";
+                case "Remove Employee":
                     removeEmployee();
                     break;
 
@@ -238,19 +302,19 @@ async function employeeApp() {
                     viewAllEmployees();
                     break;
 
-                // VIEW ALL EMPLOYES BY DEPT
-                case "View All Employees by Department":
+                // VIEW ALL EMPLOYEES BY DEPT
+                case "View All Employees By Deparment":
                     viewEmployeesByDept();
                     break;
 
                 // VIEW EMPLOYEES BY ROLE
-                case "View All Employees by Role":
+                case "View All Employees By Role":
                     viewEmployeesByRole();
                     break;
 
                 //EXIT
                 case "Exit":
-                    connection.end();
+                    db.end();
                     break;
             }
         });
